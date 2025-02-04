@@ -1,28 +1,54 @@
-name: Release Workflow
-
+name: Sync Template
 on:
-  push:
-    branches:    
-      - main
-
-  pull_request:
-
+  # schedule:
+  #   - cron: "0 0 * * 1" # Runs weekly
+  workflow_dispatch:
 
 jobs:
-  release:
+  sync:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        with:
-          tag_name: v1.0.0
-          release_name: Release v1.0.0
-          body: |
-            Description of the release
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.release }}
+      - name: Add Upstream and Fetch Changes
+        run: |
+          git remote add upstream https://github.com/GoogleCloudPlatformDevops/gcp-tf-modules.git
+          git fetch upstream
+          git merge upstream/main --allow-unrelated-histories
+          git push origin main
+
+
+
+
+
+
+
+# name: Release Workflow
+
+# on:
+#   push:
+#     branches:    
+#       - main
+
+#   pull_request:
+
+
+# jobs:
+#   release:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
+
+#       - name: Create GitHub Release
+#         uses: actions/create-release@v1
+#         with:
+#           tag_name: v1.0.0
+#           release_name: Release v1.0.0
+#           body: |
+#             Description of the release
+#           draft: false
+#           prerelease: false
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.release }}

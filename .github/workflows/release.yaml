@@ -1,7 +1,8 @@
 name: Sync Template
 on:
+  # Uncomment the schedule for a weekly sync (Monday at 00:00 UTC)
   # schedule:
-  #   - cron: "0 0 * * 1" # Runs weekly
+  #   - cron: "0 0 * * 1"
   workflow_dispatch:
 
 jobs:
@@ -10,13 +11,25 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensures full history is fetched
+
+      - name: Set Up Git Identity
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
 
       - name: Add Upstream and Fetch Changes
         run: |
-          git remote add upstream https://github.com/GoogleCloudPlatformDevops/gcp-tf-modules.git
-          git fetch upstream
-          git merge upstream/main --allow-unrelated-histories
+          git remote -v | grep 'upstream' || git remote add upstream https://github.com/GoogleCloudPlatformDevops/gcp-tf-modules.git
+          git fetch upstream main
+
+      - name: Merge Upstream Changes into Main
+        run: |
+          git checkout main
+          git merge --ff-only upstream/main || echo "No changes to merge"
           git push origin main
+
 
 
 
